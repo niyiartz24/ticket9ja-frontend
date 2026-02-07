@@ -1,0 +1,49 @@
+{
+  "name": "Ticket9ja - Event Ticketing System",
+  "short_name": "Ticket9ja",
+  "description": "Professional event ticketing system with QR code scanning, ticket management, and real-time validation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Scan Ticket",
+      "short_name": "Scan",
+      "description": "Scan QR code to validate tickets",
+      "url": "/?action=scan",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Create Event",
+      "short_name": "New Event",
+      "description": "Create a new event",
+      "url": "/?action=create",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
