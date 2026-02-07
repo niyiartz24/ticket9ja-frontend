@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ticket9ja - Event Ticketing System</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Professional event ticketing system with QR code scanning and real-time validation">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ticket9ja">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-page" class="page active">
+        <div class="container">
+            <div class="login-card">
+                <div class="logo">
+                    <h1>🎫 Ticket9ja</h1>
+                    <p>Event Ticketing System</p>
+                </div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" name="username" value="admin" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" name="password" value="admin123" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div id="login-error" class="error-message" style="display:none;"></div>
+                </form>
+                <div class="help-text">
+                    <p>Default: admin / admin123</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-page" class="page">
+        <nav class="navbar">
+            <div class="nav-brand">🎫 Ticket9ja</div>
+            <button class="logout-btn btn btn-secondary">Logout</button>
+        </nav>
+        
+        <div class="container">
+            <h2>Dashboard</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎟️</div>
+                    <div class="stat-value" id="total-tickets">0</div>
+                    <div class="stat-label">Total Tickets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="used-tickets">0</div>
+                    <div class="stat-label">Used Tickets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value" id="total-events">0</div>
+                    <div class="stat-label">Total Events</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="createNewEvent()">➕ Create New Event</button>
+                <button class="btn btn-primary" onclick="navigateTo('tickets-page')">🎫 Manage Tickets</button>
+                <button class="btn btn-primary" onclick="navigateTo('scan-page')">📱 Scan Tickets</button>
+            </div>
+
+            <div class="card">
+                <h3>All Events</h3>
+                <div id="events-list">
+                    <p style="text-align:center; color:#666;">Loading events...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Page -->
+    <div id="event-page" class="page">
+        <nav class="navbar">
+            <button onclick="navigateTo('dashboard-page')" class="btn btn-secondary">← Back</button>
+            <div class="nav-brand" id="event-page-title">Manage Event</div>
+            <button class="logout-btn btn btn-secondary">Logout</button>
+        </nav>
+        
+        <div class="container">
+            <h2 id="event-form-title">Create New Event</h2>
+            
+            <form id="event-form">
+                <input type="hidden" id="event-id">
+                
+                <div class="form-group">
+                    <label>Event Name *</label>
+                    <input type="text" id="event-name" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Event Date *</label>
+                        <input type="date" id="event-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Event Time *</label>
+                        <input type="time" id="event-time" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Venue *</label>
+                    <input type="text" id="venue" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>City *</label>
+                    <input type="text" id="city" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ticket Design Image</label>
+                    <input type="file" id="ticket-design" accept="image/*">
+                    <small>Upload custom background for tickets (PNG/JPG)</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Save Event</button>
+                <div id="event-message" class="message" style="display:none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tickets Page -->
+    <div id="tickets-page" class="page">
+        <nav class="navbar">
+            <button onclick="navigateTo('dashboard-page')" class="btn btn-secondary">← Back</button>
+            <div class="nav-brand">Manage Tickets</div>
+            <button class="logout-btn btn btn-secondary">Logout</button>
+        </nav>
+        
+        <div class="container">
+            <h2>Ticket Management</h2>
+            
+            <div class="card">
+                <h3>Select Event</h3>
+                <select id="event-selector" class="event-selector">
+                    <option value="">Loading events...</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <h3>Create New Ticket</h3>
+                <form id="ticket-form">
+                    <div class="form-group">
+                        <label>Attendee Name *</label>
+                        <input type="text" id="attendee-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Attendee Email *</label>
+                        <input type="email" id="attendee-email" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ticket Type *</label>
+                            <select id="ticket-type" required>
+                                <option value="Regular">Regular</option>
+                                <option value="VIP">VIP</option>
+                                <option value="VVIP">VVIP</option>
+                                <option value="Student">Student</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity *</label>
+                            <input type="number" id="quantity" min="1" max="10" value="1" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Create Ticket(s)</button>
+                    <div id="ticket-message" class="message" style="display:none;"></div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Tickets for Selected Event</h3>
+                <div id="tickets-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan Page -->
+    <div id="scan-page" class="page">
+        <nav class="navbar">
+            <button onclick="navigateTo('dashboard-page')" class="btn btn-secondary">← Back</button>
+            <div class="nav-brand">Scan Tickets</div>
+            <button class="logout-btn btn btn-secondary">Logout</button>
+        </nav>
+        
+        <div class="container">
+            <h2>QR Code Scanner</h2>
+            
+            <div class="scanner-container">
+                <video id="scanner-video" playsinline></video>
+                <canvas id="scanner-canvas" hidden></canvas>
+                
+                <div id="scan-result" class="scan-result"></div>
+                
+                <button id="start-scan-btn" class="btn btn-primary">Start Scanner</button>
+                <button id="stop-scan-btn" class="btn btn-secondary" style="display:none;">Stop Scanner</button>
+            </div>
+
+            <div class="card">
+                <h3>Manual Entry</h3>
+                <form id="manual-scan-form">
+                    <div class="form-group">
+                        <label>Enter Ticket ID</label>
+                        <input type="text" id="manual-ticket-id" placeholder="TKT-XXXXXXXX-XXXX">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Validate Ticket</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Edit Ticket</h3>
+            <form id="edit-ticket-form">
+                <input type="hidden" id="edit-ticket-id">
+                <div class="form-group">
+                    <label>Attendee Name</label>
+                    <input type="text" id="edit-attendee-name">
+                </div>
+                <div class="form-group">
+                    <label>Attendee Email</label>
+                    <input type="email" id="edit-attendee-email">
+                </div>
+                <div class="form-group">
+                    <label>Ticket Type</label>
+                    <select id="edit-ticket-type">
+                        <option value="Regular">Regular</option>
+                        <option value="VIP">VIP</option>
+                        <option value="VVIP">VVIP</option>
+                        <option value="Student">Student</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="offline-indicator" style="display:none;">
+        <span>📵 You're offline</span>
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="install-prompt" class="install-prompt" style="display:none;">
+        <div class="install-content">
+            <span>📱 Install Ticket9ja for a better experience</span>
+            <button id="install-button" class="btn btn-primary btn-small">Install</button>
+            <button id="dismiss-install" class="btn btn-secondary btn-small">Later</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="app.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => {
+                        console.log('✅ Service Worker registered:', reg.scope);
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 New version available! Refresh to update.');
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.log('❌ Service Worker registration failed:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const installPrompt = document.getElementById('install-prompt');
+        const installButton = document.getElementById('install-button');
+        const dismissInstall = document.getElementById('dismiss-install');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            setTimeout(() => {
+                if (localStorage.getItem('installDismissed') !== 'true') {
+                    installPrompt.style.display = 'block';
+                }
+            }, 3000);
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`Install prompt outcome: ${outcome}`);
+                deferredPrompt = null;
+                installPrompt.style.display = 'none';
+            }
+        });
+
+        dismissInstall.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+            localStorage.setItem('installDismissed', 'true');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed successfully!');
+            installPrompt.style.display = 'none';
+            deferredPrompt = null;
+        });
+
+        const offlineIndicator = document.getElementById('offline-indicator');
+
+        window.addEventListener('online', () => {
+            offlineIndicator.style.display = 'none';
+            console.log('✅ Back online');
+        });
+
+        window.addEventListener('offline', () => {
+            offlineIndicator.style.display = 'block';
+            console.log('📵 You are offline');
+        });
+
+        if (!navigator.onLine) {
+            offlineIndicator.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
